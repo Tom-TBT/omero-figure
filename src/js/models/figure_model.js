@@ -1,4 +1,4 @@
-    
+
     import Backbone from "backbone";
     import _ from 'underscore';
     import $ from "jquery";
@@ -46,7 +46,7 @@
             this.panels = new PanelList();      //this.get("shapes"));
 
             // wrap selection notification in a 'debounce', so that many rapid
-            // selection changes only trigger a single re-rendering 
+            // selection changes only trigger a single re-rendering
             this.notifySelectionChange = _.debounce( this.notifySelectionChange, 10);
         },
 
@@ -106,6 +106,7 @@
             setTimeout(function() {
                 self.trigger("reset_undo_redo");
             }, 50);
+            self.panels.updateParentData();
         },
 
         // take Figure_JSON from a previous version,
@@ -231,7 +232,7 @@
                     });
                 }
             }
-            
+
             if (v < 6) {
                 console.log("Transforming to VERSION 6");
                 // Adding the Z scale to the model
@@ -452,7 +453,7 @@
                 doClear();
             }
         },
-        
+
         addImages: function(iIds) {
             this.clearSelected();
 
@@ -581,6 +582,7 @@
                     // We do some additional processing in Panel.parse()
                     self.panels.create(n, {'parse': true}).set('selected', true);
                     self.notifySelectionChange();
+                    this.panels.updateParentData();
                 })
                 .catch(err => {
                     alert("Image not found on the server, " +
@@ -669,7 +671,7 @@
             });
         },
 
-        
+
         align_right: function() {
             var selected = this.getSelected(),
                 x_vals = [];
