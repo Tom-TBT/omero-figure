@@ -12,7 +12,7 @@
     import label_right_vertical_template from '../../templates/labels/label_right_vertical.template.html?raw';
     import label_table_template from '../../templates/labels/label_table.template.html?raw';
     import scalebar_panel_template from '../../templates/scalebar_panel.template.html?raw';
-    
+
     // -------------------------Panel View -----------------------------------
     // A Panel is a <div>, added to the #paper by the FigureView below.
     var PanelView = Backbone.View.extend({
@@ -207,7 +207,7 @@
                     }
                 }
                 const matches = [...ljson.text.matchAll(/\[.+?\]/g)]; // Non greedy regex capturing expressions in []
-                if (matches.length>0){ 
+                if (matches.length>0){
                     var new_text = "";
                     var last_idx = 0;
                     for (const match of matches) {// Loops on the match to replace in the ljson.text the expression by their values
@@ -233,7 +233,7 @@
                             format = prop_nf[1] ? prop_nf[1] : "index";
                             precision = param_dict["precision"] !== undefined ? param_dict["precision"] : 0; // decimal places default to 0
                             label_value = self.model.get_time_label_text(format, param_dict["offset"], precision);
-                        } else if (['image', 'dataset', 'screen', 'plate', 'well', 'wellsample'].includes(prop_nf[0])){
+                        } else if (['project', 'dataset', 'image', 'screen', 'plate', 'well', 'wellsample'].includes(prop_nf[0])){
                             format = prop_nf[1] ? prop_nf[1] : "name";
                             label_value = self.model.get_name_label_text(prop_nf[0], format);
                             console.log("render_label label_value", label_value, prop_nf);
@@ -242,7 +242,7 @@
                         } else if (['x', 'y', 'z', 'width', 'height', 'w', 'h', 'rotation', 'rot'].includes(prop_nf[0])){
                             format = prop_nf[1] ? prop_nf[1] : "pixel";
                             precision = param_dict["precision"] !== undefined ? param_dict["precision"] : 2; // decimal places default to 2
-                            label_value = self.model.get_view_label_text(prop_nf[0], format, param_dict["offset"], precision);  
+                            label_value = self.model.get_view_label_text(prop_nf[0], format, param_dict["offset"], precision);
                         } else if (['channels', 'c'].includes(prop_nf[0])) {
                             label_value = self.model.get_channels_label_text();
                         } else if (['zoom'].includes(prop_nf[0])) {

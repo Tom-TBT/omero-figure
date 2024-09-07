@@ -477,6 +477,7 @@
             // and subsequent ones will update coords to position
             // new image panels appropriately in a grid.
             var invalidIds = [];
+            var importPromises = [];
             for (var i=0; i<iIds.length; i++) {
                 var imgId = iIds[i].replace("|", ""),
                     validId = parseInt(imgId, 10) + "",
@@ -484,17 +485,21 @@
                 if (validId == "NaN") {
                     invalidIds.push(imgId);
                 } else {
-                    this.importImage(imgDataUrl, coords, undefined, i);
+                    importPromises.push(this.importImage(imgDataUrl, coords, undefined, i));
                 }
             }
             if (invalidIds.length > 0) {
                 var plural = invalidIds.length > 1 ? "s" : "";
                 alert("Could not add image with invalid ID" + plural + ": " + invalidIds.join(", "));
             }
+
+            // Wait for all images to be imported before calling updateParentData
+            Promise.all(importPromises).then(() => {
+                this.panels.updateParentData();
+            });
         },
 
         importImage: function(imgDataUrl, coords, baseUrl, index) {
-
             var self = this,
                 callback,
                 dataType = "json";
@@ -509,10 +514,13 @@
 
             this.set('loading_count', this.get('loading_count') + 1);
 
-            // Get the json data for the image...
-            let cors_headers = { mode: 'cors', credentials: 'include', headers: {"Content-Type": "application/json"
-              }, };
-            fetch(imgDataUrl, cors_headers)
+            let cors_headers = {
+                mode: 'cors',
+                credentials: 'include',
+                headers: {"Content-Type": "application/json"}
+            };
+
+            return fetch(imgDataUrl, cors_headers)
                 .then(rsp => rsp.json())
                 .then(data => {
                     console.log("data", data);
@@ -520,12 +528,12 @@
 
                     if (data.Exception || data.ConcurrencyException) {
                         // If something went wrong, show error and don't add to figure
-                        message = data.Exception || "ConcurrencyException"
+                        let message = data.Exception || "ConcurrencyException";
                         alert(`Image loading from ${imgDataUrl} included an Error: ${message}`);
                         return;
                     }
 
-                    coords.spacer = coords.spacer || data.size.width/20;
+                    coords.spacer = coords.spacer || data.size.width / 20;
                     var full_width = (coords.colCount * (data.size.width + coords.spacer)) - coords.spacer,
                         full_height = (coords.rowCount * (data.size.height + coords.spacer)) - coords.spacer;
                     coords.scale = coords.paper_width / (full_width + (2 * coords.spacer));
@@ -578,15 +586,18 @@
                     if (baseUrl) {
                         n.baseUrl = baseUrl;
                     }
-                    // create Panel (and select it)
+
+                    // Create Panel (and select it)
                     // We do some additional processing in Panel.parse()
                     self.panels.create(n, {'parse': true}).set('selected', true);
                     self.notifySelectionChange();
-                    this.panels.updateParentData();
                 })
                 .catch(err => {
-                    alert("Image not found on the server, " +
-                        "or you don't have permission to access it at " + imgDataUrl);
+                    alert("Image not found on the server, or you don't have permission to access it at " + imgDataUrl);
+                })
+                .finally(() => {
+                    // Return a resolved promise to ensure this completes even if there's an error
+                    return Promise.resolve();
                 });
         },
 
