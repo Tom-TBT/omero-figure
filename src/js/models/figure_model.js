@@ -640,13 +640,14 @@
                             alert(`Image loading from ${imgDataUrl} included an Error: ${message}`);
                             return;
                         }
+
+                        var new_channels = JSON.parse(JSON.stringify(panel.attributes.channels));
                         for (var i=0; i < data.channels.length; i++) {
-                            panel.attributes.channels[i].label = data.channels[i].label;
+                            new_channels[i].label = data.channels[i].label
                         }
 
                         panel.set({
                             'name': data.meta.imageName,
-                            'rdefs': {'model': data.rdefs.model},
                             'datasetName': data.meta.datasetName,
                             'datasetId': data.meta.datasetId,
                             'pixel_size_x': data.pixel_size.valueX,
@@ -656,6 +657,7 @@
                             'pixel_size_z_symbol': data.pixel_size.symbolZ,
                             'pixel_size_x_unit': data.pixel_size.unitX,
                             'pixel_size_z_unit': data.pixel_size.unitZ,
+                            'channels': new_channels
                         });
                     });
             });

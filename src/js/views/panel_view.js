@@ -39,6 +39,9 @@
             this.listenTo(this.model,
                 'change:channels change:zoom change:dx change:dy change:width change:height change:rotation change:labels change:theT change:deltaT change:theZ change:deltaZ change:z_projection change:z_start change:z_end',
                 this.render_labels);
+            this.listenTo(this.model,  // changes occuring when refreshing image metadata
+                'change:name change:pixel_size_x_unit change:pixel_size_y_unit change:pixel_size_x change:pixel_size_y change:pixel_size_z change:pixel_size_symbol_x change:pixel_size_symbol_y change:pixel_size_symbol_z change:datasetName change:datasetId',
+                this.render_labels);
             this.listenTo(this.model, 'change:shapes', this.render_shapes);
             this.listenTo(this.model, 'change:border', this.render_layout);
             // During drag or resize, model isn't updated, but we trigger 'drag'
@@ -257,12 +260,12 @@
                             precision = param_dict["precision"] !== undefined ? param_dict["precision"] : 0; // decimal places default to 0
                             label_value = self.model.get_time_label_text(format, param_dict["offset"], precision);
                         } else if (['image', 'dataset', 'screen', 'plate', 'well', 'wellsample', 'acquisition', 'run', 'field'].includes(prop_nf[0])){
-                            // Map aliases: 
+                            // Map aliases:
                             // 'field' -> 'wellsample' (because backend stores field under 'wellsample')
                             // 'run' -> 'acquisition'
                             prop_nf[0] = prop_nf[0] === 'field' ? 'wellsample' : prop_nf[0];
                             prop_nf[0] = prop_nf[0] === 'run' ? 'acquisition' : prop_nf[0];
-                            
+
                             format = prop_nf[1] ? prop_nf[1] : "name";
                             label_value = self.model.get_name_label_text(prop_nf[0], format);
                             console.log("render_label label_value", label_value, prop_nf);
