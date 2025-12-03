@@ -119,6 +119,7 @@
             "click .export_pdf": "export_pdf",
             "click .export_options li": "export_options",
             "click .add_panel": "addPanel",
+            "click .refresh_metadata": "refreshMetadata",
             "click .delete_panel": "deleteSelectedPanels",
             "click .copy": "copy_selected_panels",
             "click .paste": "paste_panels",
@@ -150,6 +151,7 @@
             'mod+s': 'save_figure_event',
             'mod+n': 'goto_newfigure',
             'mod+o': 'open_figure',
+            'mod+r': 'refreshMetadata',
             'down' : 'nudge_down',
             'up' : 'nudge_up',
             'left' : 'nudge_left',
@@ -673,6 +675,12 @@
             event.preventDefault();
             if (this.modal_visible()) return true;
             this.model.select_all();
+        },
+
+        refreshMetadata: function(event) {
+            event.preventDefault();
+            if (this.modal_visible()) return true;
+            this.model.refreshMetadata();
         },
 
         deleteSelectedPanels: function(event) {

@@ -621,6 +621,46 @@
                 });
         },
 
+        refreshMetadata: function() {
+            // Refresh metadata (name, dataset, channels, pixel sizes) for selected panels
+            // This is useful if metadata has changed since panel was added.
+            // The refresh must not change potential edits made by the user (eg channel colors, panel size/position)
+            this.getSelected().each(function(panel) {
+                var imgDataUrl = BASE_WEBFIGURE_URL + 'imgData/' + panel.get('imageId') + '/';
+                // Get the json data for the image...
+                let cors_headers = { mode: 'cors', credentials: 'include', headers: {"Content-Type": "application/json"
+                }, };
+                fetch(imgDataUrl, cors_headers)
+                    .then(rsp => rsp.json())
+                    .then(data => {
+
+                        if (data.Exception || data.ConcurrencyException) {
+                            // If something went wrong, show error and don't add to figure
+                            message = data.Exception || "ConcurrencyException"
+                            alert(`Image loading from ${imgDataUrl} included an Error: ${message}`);
+                            return;
+                        }
+                        for (var i=0; i < data.channels.length; i++) {
+                            panel.attributes.channels[i].label = data.channels[i].label;
+                        }
+
+                        panel.set({
+                            'name': data.meta.imageName,
+                            'rdefs': {'model': data.rdefs.model},
+                            'datasetName': data.meta.datasetName,
+                            'datasetId': data.meta.datasetId,
+                            'pixel_size_x': data.pixel_size.valueX,
+                            'pixel_size_y': data.pixel_size.valueY,
+                            'pixel_size_z': data.pixel_size.valueZ,
+                            'pixel_size_x_symbol': data.pixel_size.symbolX,
+                            'pixel_size_z_symbol': data.pixel_size.symbolZ,
+                            'pixel_size_x_unit': data.pixel_size.unitX,
+                            'pixel_size_z_unit': data.pixel_size.unitZ,
+                        });
+                    });
+            });
+        },
+
         // Used to position the #figure within canvas and also to coordinate svg layout.
         getFigureSize: function() {
             var pc = this.get('page_count'),
