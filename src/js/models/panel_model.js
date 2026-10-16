@@ -1065,7 +1065,7 @@
                 return (c.active ? '' : '-') + (1+i) + "|" + c.window.start + ":" + c.window.end + "$" + c.color;
             });
             var maps_json = chs.map(function(c){
-                return {'reverse': {'enabled': !!c.reverseIntensity}};
+                return {'reverse': {'enabled': !!c.reverseIntensity}, "quantization":{"family":c.family,"coefficient":c.coefficient}};
             });
             var renderString = cStrings.join(","),
                 imageId = this.get('imageId'),

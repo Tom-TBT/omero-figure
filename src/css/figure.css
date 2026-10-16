@@ -808,11 +808,8 @@
         position: absolute;
         top: 0px;
     }
-    .ch_start, .ch_end {
-        position: absolute;
-        top: 0px;
-    }
-    .ch_start input, .ch_end input {
+
+    .ch_start input, .ch_end input, .ch_coeff input {
         width: 45px;
         height: 33px;
         text-align: center;

@@ -1338,6 +1338,7 @@ class FigureExport(object):
         windows = []
         colors = []
         reverses = []
+        quant_maps = []
 
         # OMERO.figure doesn't support greyscale rendering
         image.setColorRenderingModel()
@@ -1348,7 +1349,12 @@ class FigureExport(object):
                 windows.append([c['window']['start'], c['window']['end']])
                 colors.append(c['color'])
                 reverses.append(c.get('reverseIntensity', False))
+            quant_maps.append({
+                "family":c.get("family", "linear"),
+                "coefficient":c.get("coefficient", 1.0)
+            })
 
+        image.setQuantizationMaps(quant_maps)
         image.setActiveChannels(c_idxs, windows, colors, reverses)
 
         size_x = image.getSizeX()

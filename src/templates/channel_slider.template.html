@@ -23,6 +23,23 @@
                     </a>
                 </li>
                 <li class="dropdown-divider"></li>
+                <li><a data-color="map-linear" class="dropdown-item" href="#">
+                     <% if(family === "linear") { %> <i class="bi-check-lg"></i> <% } else { %> &nbsp &nbsp <% } %>
+                    Linear
+                </a></li>
+                <li><a data-color="map-polynomial" class="dropdown-item" href="#">
+                    <% if(family === "polynomial") { %> <i class="bi-check-lg"></i> <% } else { %> &nbsp &nbsp <% } %>
+                    Polynomial
+                </a></li>
+                <li><a data-color="map-exponential" class="dropdown-item" href="#">
+                    <% if(family === "exponential") { %> <i class="bi-check-lg"></i> <% } else { %> &nbsp &nbsp <% } %>
+                    Exponential
+                </a></li>
+                <li><a data-color="map-logarithmic" class="dropdown-item" href="#">
+                    <% if(family === "logarithmic") { %> <i class="bi-check-lg"></i> <% } else { %> &nbsp &nbsp <% } %>
+                    Logarithmic
+                </a></li>
+                <li class="dropdown-divider"></li>
                 <li><a data-color="0000FF" href="#" class="dropdown-item">
                     <span style="background-color:#00f">&nbsp &nbsp &nbsp</span>&nbsp Blue
                 </a></li>
@@ -87,4 +104,17 @@
         <% } %>
         data-idx="<%=idx%>" value="<%= endAvg %>" min="<%= startAvg %>">
     </span>
+
+    <% if(["mixed", "exponential", "polynomial", "logarithmic"].includes(family)) { %>
+        <br>Map: <%= family %> &nbsp; <% if(family !== "logarithmic") { %>Coefficient:
+        <span class="ch_coeff">
+            <input type="number" data-window="coefficient"
+                <% if (coeffsNotEqual) { %>
+                    title="Selected images have different coefficient values"
+                    style="color: #ccc;"
+                <% } %>
+                data-idx="<%=idx%>" value="<%= coefficient %>" step="0.01">
+        </span>
+        <% } %>
+    <% } %>
 </div>

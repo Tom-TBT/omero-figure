@@ -358,6 +358,8 @@ export async function renderZarrToSrc(source, attrs, theZ, theT, channels, rect,
   let minMaxValues = [];
   let luts = [];
   let inverteds = [];
+  let coeffs = [];
+  let families = [];
   channels.forEach((ch, index) => {
     if (ch.active) {
       activeChIndicies.push(index);
@@ -365,6 +367,8 @@ export async function renderZarrToSrc(source, attrs, theZ, theT, channels, rect,
       minMaxValues.push([ch.window.start, ch.window.end]);
       luts.push(ch.color.endsWith(".lut") ? ch.color : undefined);
       inverteds.push(ch.reverseIntensity);
+      coeffs.push(ch.coefficient);
+      families.push(ch.family);
     }
   });
 

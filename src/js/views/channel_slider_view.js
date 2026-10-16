@@ -29,6 +29,7 @@ var ChannelSliderView = Backbone.View.extend({
     events: {
         "keyup .ch_start": "handle_channel_input",
         "keyup .ch_end": "handle_channel_input",
+        "keyup .ch_coeff": "handle_coeff_input",
         "click .channel-btn": "toggle_channel",
         "click .dropdown-menu a": "pick_color",
         "input .ch_slider input": "channel_slider_slide",
@@ -101,7 +102,11 @@ var ChannelSliderView = Backbone.View.extend({
             self.models.forEach(function(m){
                 m.save_channel(idx, 'reverseIntensity', !reverse);
             });
-        } else {
+        } else if (color.startsWith('map-')) {
+            self.models.forEach(function(m){
+                m.save_channel(idx, 'family', color.split("-")[1]);
+            });
+        }  else {
             this.set_color(idx, color);
         }
         return false;
@@ -213,6 +218,18 @@ var ChannelSliderView = Backbone.View.extend({
         newCh[startEnd] = value;
         this.models.forEach(function(m) {
             m.save_channel_window(idx, newCh);
+        });
+    },
+
+    handle_coeff_input: function(event) {
+        if (event.type === "keyup" && event.which !== 13) {
+            return;     // Ignore keyups except 'Enter'
+        }
+        var idx = event.target.getAttribute('data-idx'),
+            coeff = parseFloat(event.target.value, 10);
+        if (isNaN(coeff)) return;
+        this.models.forEach(function(m) {
+            m.save_channel(idx, 'coefficient', coeff);
         });
     },
 
@@ -336,6 +353,16 @@ var ChannelSliderView = Backbone.View.extend({
                     return ch[idx].reverseIntensity === true;
                 }
             }
+            var getCoefficient = function(idx) {
+                return function(ch) {
+                    return ch[idx].coefficient;
+                }
+            }
+            var getFamily = function(idx) {
+                return function(ch) {
+                    return ch[idx].family;
+                }
+            }
             var getActive = function(idx) {
                 return function(ch) {
                     return ch[idx].active === true;
@@ -377,6 +404,8 @@ var ChannelSliderView = Backbone.View.extend({
                 var maxs = chData.map(windowFn(chIdx, 'max'));
                 var colors = chData.map(getColor(chIdx));
                 var reverses = chData.map(getReverse(chIdx));
+                var families = chData.map(getFamily(chIdx));
+                var coefficients = chData.map(getCoefficient(chIdx));
                 var actives = chData.map(getActive(chIdx));
                 var labels = chData.map(getLabel(chIdx));
                 // Reduce lists into summary for this channel
@@ -384,6 +413,7 @@ var ChannelSliderView = Backbone.View.extend({
                 var endAvg = ends.reduce(addFn, 0) / ends.length;
                 var startsNotEqual = starts.reduce(allEqualFn, starts[0]) === undefined;
                 var endsNotEqual = ends.reduce(allEqualFn, ends[0]) === undefined;
+                var coeffsNotEqual = coefficients.reduce(allEqualFn, coefficients[0]) === undefined;
                 var min = mins.reduce(reduceFn(Math.min));
                 var max = maxs.reduce(reduceFn(Math.max));
                 if (max - min > SLIDER_INCR_CUTOFF) {
@@ -394,15 +424,18 @@ var ChannelSliderView = Backbone.View.extend({
                     startAvg = startAvg.toFixed(2);
                     endAvg = endAvg.toFixed(2);
                 }
+
                 var color = colors.reduce(allEqualFn, colors[0]) ? colors[0] : 'ccc';
                 // allEqualFn for booleans will return undefined if not or equal
                 var label = labels.reduce(allEqualFn, labels[0]) ? labels[0] : ' ';
                 var reverse = reverses.reduce(allEqualFn, reverses[0]) ? true : false;
+                var coefficient = coefficients.reduce(allEqualFn, coefficients[0]) ? coefficients[0] : coefficients[0];
+                var family = families.reduce(allEqualFn, families[0]) ? families[0] : "mixed"; //
                 var active = actives.reduce(allEqualFn, actives[0]);
-                var style = {'background-position': '0 0'}
+                var style = {'background-position': '0 0'};
                 var lutBgPos = FigureLutPicker.getLutBackgroundPosition(color);
                 var lutPng = FigureLutPicker.getLutPng(color);
-                console.log("lutPng", lutPng);
+
                 var lutBgCss = '--bgPos: 0 0;';
                 if (color.endsWith('.lut') && lutPng) {
                     // lutPng means we have LUT from ome-zarr.js. Apply without offset
@@ -432,6 +465,9 @@ var ChannelSliderView = Backbone.View.extend({
                                                 'active': active,
                                                 'lutBgCss': lutBgCss,
                                                 'reverse': reverse,
+                                                'family': family,
+                                                'coefficient': coefficient,
+                                                'coeffsNotEqual': coeffsNotEqual,
                                                 'color': color,
                                                 'isDark': this.isDark(color)
                                             });
